@@ -1,0 +1,11 @@
+{
+    "name": "Human Bond NFT",
+    "description": "Human verified bond recorded on-chain. Each token represents a unique commitment between two verified humans.",
+    "image": "ipfs://QmS5Aqic36eFsGvmGsPDBD3VhfTyY7W1E7Sk7jTrAuKtqo",
+    "attributes": [
+        {
+            "trait_type": "Verification Type",
+            "value": "World ID Proof"
+        }
+    ]
+}
