@@ -10,5 +10,11 @@
       "name": "v5.5.0",
       "rev": "fcbae5394ae8ad52d8e580a3477db99814b9d565"
     }
+  },
+  "lib/world-id-contracts": {
+    "tag": {
+      "name": "v1.0.0",
+      "rev": "f41cd618cadec07a5bc5b66e608df4bc13ffbb54"
+    }
   }
 }

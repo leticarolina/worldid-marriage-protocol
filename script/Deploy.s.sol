@@ -30,7 +30,7 @@ contract DeployScript is Script {
         MilestoneNFT milestoneNFT = new MilestoneNFT();
         TimeToken timeToken = new TimeToken();
         DummyWorldID worldId = new DummyWorldID();
-
+        address WORLD_ID_ROUTER_SEPOLIA = 0x469449f251692E0779667583026b5A1E99512157;
         //Set milestones metadata URIs BEFORE ownership transfer
         milestoneNFT.setMilestoneURI(
             1,
@@ -50,33 +50,9 @@ contract DeployScript is Script {
         );
         milestoneNFT.freezeMilestones();
 
-        // Nullifier hashes for local testing
-        uint256 externalNullifierPropose = uint256(
-            keccak256("create-marriage-proposal")
-        );
-
-        uint256 externalNullifierAccept = uint256(
-            keccak256("accept-marriage-proposal")
-        );
-        // uint256 externalNullifierPropose = uint256(
-        //     bytes32(
-        //         abi.encodePacked(
-        //             keccak256(
-        //                 abi.encodePacked(appId, "create-marriage-proposal")
-        //             )
-        //         )
-        //     )
-        // );
-
-        // uint256 externalNullifierAccept = uint256(
-        //     bytes32(
-        //         abi.encodePacked(
-        //             keccak256(
-        //                 abi.encodePacked(appId, "accept-marriage-proposal")
-        //             )
-        //         )
-        //     )
-        // );
+        string memory appId = "app_test"; // for local dev, anything works
+        string memory actionPropose = "create-marriage-proposal";
+        string memory actionAccept = "accept-marriage-proposal";
 
         //Deploy HumanBond main contract
         HumanBond humanBond = new HumanBond(
@@ -84,8 +60,9 @@ contract DeployScript is Script {
             address(vowNFT),
             address(timeToken),
             address(milestoneNFT),
-            externalNullifierPropose,
-            externalNullifierAccept
+            appId,
+            actionPropose,
+            actionAccept
         );
 
         //Link contracts
