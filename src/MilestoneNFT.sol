@@ -19,8 +19,8 @@ contract MilestoneNFT is ERC721, Ownable {
 
     uint256 public nextTokenId; // Counter for minted NFTs
     address public humanBondContract; // Authorized minter
-    mapping(uint256 => string) public milestoneURIs; // year => IPFS URI
-    mapping(uint256 => uint256) public tokenYear; // tokenId => milestone year
+    mapping(uint256 => string) public milestoneURIs; // year => IPFS URI of the
+    mapping(uint256 tokenId => uint256 year) public tokenYear; // tokenId => milestone year
     uint256 public latestYear; // Highest milestone year set
     bool public frozen; // Prevents further edits once locked
 
@@ -29,7 +29,12 @@ contract MilestoneNFT is ERC721, Ownable {
     /* -------------------------------------------------------------------------- */
 
     event MilestoneURISet(uint256 indexed year, string uri);
-    event MilestoneMinted(address indexed user, uint256 year, uint256 tokenId, uint256 timestamp);
+    event MilestoneMinted(
+        address indexed user,
+        uint256 year,
+        uint256 tokenId,
+        uint256 timestamp
+    );
     event MilestonesFrozen();
 
     /* -------------------------------------------------------------------------- */
@@ -81,7 +86,10 @@ contract MilestoneNFT is ERC721, Ownable {
 
     /// @notice Define or update the metadata URI for a specific milestone year.
     /// @dev Example: setMilestoneURI(1, "ipfs://QmCID1");
-    function setMilestoneURI(uint256 year, string calldata uri) external onlyOwner notFrozen {
+    function setMilestoneURI(
+        uint256 year,
+        string calldata uri
+    ) external onlyOwner notFrozen {
         milestoneURIs[year] = uri;
         if (year > latestYear) latestYear = year;
         emit MilestoneURISet(year, uri);
@@ -99,7 +107,10 @@ contract MilestoneNFT is ERC721, Ownable {
 
     /// @notice Mint the NFT corresponding to a specific milestone year.
     /// @dev Can only be called by the HumanBond contract.
-    function mintMilestone(address to, uint256 year) external onlyHumanBond returns (uint256) {
+    function mintMilestone(
+        address to,
+        uint256 year
+    ) external onlyHumanBond returns (uint256) {
         string memory uri = milestoneURIs[year];
         if (bytes(uri).length == 0) revert MilestoneNFT__URI_NotFound(year);
 
@@ -116,7 +127,9 @@ contract MilestoneNFT is ERC721, Ownable {
     /* -------------------------------------------------------------------------- */
 
     /// @notice Returns the token URI based on the milestone year of the token.
-    function tokenURI(uint256 tokenId) public view override returns (string memory) {
+    function tokenURI(
+        uint256 tokenId
+    ) public view override returns (string memory) {
         _requireOwned(tokenId);
         uint256 year = tokenYear[tokenId];
         if (bytes(milestoneURIs[year]).length == 0) {
@@ -129,7 +142,11 @@ contract MilestoneNFT is ERC721, Ownable {
     /*                             SOULBOUND OVERRIDES                             */
     /* -------------------------------------------------------------------------- */
 
-    function _update(address to, uint256 tokenId, address auth) internal override returns (address) {
+    function _update(
+        address to,
+        uint256 tokenId,
+        address auth
+    ) internal override returns (address) {
         // Allow mint (from == 0x0)
         address from = _ownerOf(tokenId);
 

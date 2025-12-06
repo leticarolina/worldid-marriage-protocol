@@ -78,22 +78,21 @@ contract HumanBond is Ownable {
     mapping(address => Proposal) public proposals;
     mapping(bytes32 => Marriage) public marriages;
     mapping(address => bytes32) public activeMarriageOf; // quick lookup of active marriage ID by user address
-
-    bytes32[] public marriageIds; //So every couple has a unique “marriage fingerprint”
     // nullifier + externalNullifier combination prevents double-signalling for a particular action.
     mapping(uint256 => mapping(uint256 => bool)) public usedNullifier; //key usedNullifier by externalNullifier.
+
+    bytes32[] public marriageIds; //So every couple has a unique “marriage fingerprint”
 
     IWorldID public immutable worldId;
     VowNFT public immutable vowNFT;
     TimeToken public immutable timeToken;
     MilestoneNFT public immutable milestoneNFT;
-    // uint256 public immutable externalNullifier;
     uint256 public immutable externalNullifierPropose;
     uint256 public immutable externalNullifierAccept;
 
-    uint256 public constant GROUP_ID = 1;
-    uint256 public constant DAY = 1 minutes;
-    uint256 public constant YEAR = 2 minutes;
+    // uint256 public constant GROUP_ID = 1;
+    uint256 public immutable DAY; // for tests (1 day = 1 minutes)
+    uint256 public immutable YEAR; // for tests (1 year = 3 minutes)
 
     /* ----------------------------- EVENTS ----------------------------- */
     event ProposalCreated(address indexed proposer, address indexed proposed);
@@ -129,14 +128,16 @@ contract HumanBond is Ownable {
         address _milestoneNFT,
         string memory _appId, // NEW
         string memory _actionPropose, // NEW
-        string memory _actionAccept // NEW
+        string memory _actionAccept, // NEW
+        uint256 _day, // for tests
+        uint256 _year // for tests
     ) Ownable(msg.sender) {
         worldId = IWorldID(_worldIdRouter);
         vowNFT = VowNFT(_VowNFT);
         timeToken = TimeToken(_TimeToken);
         milestoneNFT = MilestoneNFT(_milestoneNFT);
 
-        // Compute external nullifiers exactly as World ID expects
+        // Compute external nullifiers exactly as World ID expects, define action domain for proofs
         externalNullifierPropose = abi
             .encodePacked(
                 abi.encodePacked(_appId).hashToField(),
@@ -147,6 +148,8 @@ contract HumanBond is Ownable {
         externalNullifierAccept = abi
             .encodePacked(abi.encodePacked(_appId).hashToField(), _actionAccept)
             .hashToField();
+        DAY = _day;
+        YEAR = _year;
     }
 
     /* ---------------------------- FUNCTIONS --------------------------- */
@@ -162,7 +165,7 @@ contract HumanBond is Ownable {
         uint256 proposerNullifier,
         uint256[8] calldata proof
     ) external {
-        uint256 signalHash = abi.encodePacked(msg.sender).hashToField();
+        uint256 signalHash = abi.encodePacked(msg.sender).hashToField(); //prove msg.sender is signer
 
         if (proposed == address(0)) {
             revert HumanBond__InvalidAddress();
@@ -186,7 +189,6 @@ contract HumanBond is Ownable {
         // Verify proposer is a real human via World ID
         worldId.verifyProof(
             root,
-            GROUP_ID,
             signalHash,
             proposerNullifier,
             externalNullifierPropose,
@@ -229,23 +231,20 @@ contract HumanBond is Ownable {
         if (proposalOfProposer.proposed != msg.sender) {
             revert HumanBond__NotProposedToYou();
         }
-        if (proposalOfProposer.accepted) {
-            revert HumanBond__AlreadyAccepted();
-        }
         if (usedNullifier[externalNullifierAccept][acceptorNullifier]) {
             revert HumanBond__InvalidNullifier();
-        }
+        } //not reaching, UserAlreadyMarried in propose fires first
         if (
             activeMarriageOf[proposer] != bytes32(0) ||
             activeMarriageOf[msg.sender] != bytes32(0)
         ) {
             revert HumanBond__UserAlreadyMarried();
-        }
+        } //not reaching, propose function reverts before
 
         // Verify acceptor is also a real human
         worldId.verifyProof(
             root,
-            GROUP_ID,
+            // GROUP_ID,
             signalHash, // signal = sender address
             acceptorNullifier,
             externalNullifierAccept,
@@ -411,7 +410,7 @@ contract HumanBond is Ownable {
     function _getMarriageId(
         address a,
         address b
-    ) public pure returns (bytes32) {
+    ) internal pure returns (bytes32) {
         return
             a < b
                 ? keccak256(abi.encodePacked(a, b))
@@ -425,7 +424,7 @@ contract HumanBond is Ownable {
             revert HumanBond__InvalidAddress();
         }
         delete proposals[msg.sender];
-        emit ProposalCancelled(msg.sender, p.proposed);
+        emit ProposalCancelled(msg.sender, proposalOfProposer.proposed);
     }
 
     /* -------------------------------------------------------------------------- */

@@ -7,30 +7,25 @@ import {IWorldID, HumanBond} from "../src/HumanBond.sol";
 import {MilestoneNFT} from "../src/MilestoneNFT.sol";
 import {TimeToken} from "../src/TimeToken.sol";
 
-/// @notice Dummy World ID verifier for local testing. Replace with the real one on testnet.
-contract DummyWorldID is IWorldID {
-    function verifyProof(
-        uint256,
-        uint256,
-        uint256,
-        uint256,
-        uint256,
-        uint256[8] calldata
-    ) external pure override {}
-}
-
 /// @title Deploy Script for HumanBond Protocol
-/// @notice Deploys VowNFT and HumanBond, sets up linkage, and prints addresses.
+/// @notice Deploys TimeToken, VowNFT, MilestoneNFT and HumanBond logic contract, sets up linkage, and prints addresses.
 contract DeployScript is Script {
-    function run() external {
+    struct DeployedContracts {
+        VowNFT vowNFT;
+        MilestoneNFT milestoneNFT;
+        TimeToken timeToken;
+        HumanBond humanBond;
+    }
+
+    function run() external returns (DeployedContracts memory deployed) {
         vm.startBroadcast();
 
         // Deploy contract and tokens
         VowNFT vowNFT = new VowNFT();
         MilestoneNFT milestoneNFT = new MilestoneNFT();
         TimeToken timeToken = new TimeToken();
-        DummyWorldID worldId = new DummyWorldID();
         address WORLD_ID_ROUTER_SEPOLIA = 0x469449f251692E0779667583026b5A1E99512157;
+
         //Set milestones metadata URIs BEFORE ownership transfer
         milestoneNFT.setMilestoneURI(
             1,
@@ -50,19 +45,22 @@ contract DeployScript is Script {
         );
         milestoneNFT.freezeMilestones();
 
-        string memory appId = "app_test"; // for local dev, anything works
-        string memory actionPropose = "create-marriage-proposal";
-        string memory actionAccept = "accept-marriage-proposal";
+        // HumanBond parameters
+        string memory appId = "app_test"; // for local dev, replace with real appId on testnet
+        string memory actionPropose = "propose-bond";
+        string memory actionAccept = "accept-bond";
 
         //Deploy HumanBond main contract
         HumanBond humanBond = new HumanBond(
-            address(worldId), // replace w/ REAL WORLD ID ROUTER
+            WORLD_ID_ROUTER_SEPOLIA, // replace w/ chosen network WORLD ID ROUTER
             address(vowNFT),
             address(timeToken),
             address(milestoneNFT),
             appId,
             actionPropose,
-            actionAccept
+            actionAccept,
+            1 minutes,
+            3 minutes
         );
 
         //Link contracts
@@ -81,7 +79,13 @@ contract DeployScript is Script {
         console.log("MilestoneNFT deployed at:", address(milestoneNFT));
         console.log("HumanBond deployed at:", address(humanBond));
         console.log("Time Token deployed at:", address(timeToken));
-        console.log("DummyWorldID deployed at:", address(worldId));
         console.log("Deployment complete!");
+
+        deployed = DeployedContracts({
+            vowNFT: vowNFT,
+            milestoneNFT: milestoneNFT,
+            timeToken: timeToken,
+            humanBond: humanBond
+        });
     }
 }

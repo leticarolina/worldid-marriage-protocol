@@ -3,6 +3,8 @@ pragma solidity ^0.8.20;
 
 import {ERC721} from "openzeppelin-contracts/contracts/token/ERC721/ERC721.sol";
 import {Ownable} from "openzeppelin-contracts/contracts/access/Ownable.sol";
+import {Strings} from "openzeppelin-contracts/contracts/utils/Strings.sol";
+import {Base64} from "openzeppelin-contracts/contracts/utils/Base64.sol";
 
 /**
  * @title VowNFT
@@ -47,7 +49,9 @@ contract VowNFT is ERC721, Ownable {
     }
 
     /// @notice Returns the static IPFS metadata URI for all tokens.
-    function tokenURI(uint256 idOfToken) public view override returns (string memory) {
+    function tokenURI(
+        uint256 idOfToken
+    ) public view override returns (string memory) {
         _requireOwned(idOfToken);
         return metadataTokenURI;
     }
@@ -55,7 +59,11 @@ contract VowNFT is ERC721, Ownable {
     /* -------------------------------------------------------------------------- */
     /*                             SOULBOUND OVERRIDES                             */
     /* -------------------------------------------------------------------------- */
-    function _update(address to, uint256 tokenIdd, address auth) internal override returns (address) {
+    function _update(
+        address to,
+        uint256 tokenIdd,
+        address auth
+    ) internal override returns (address) {
         address from = _ownerOf(tokenIdd);
 
         if (from != address(0) && to != from) {
