@@ -10,13 +10,7 @@ contract MockWorldID is IWorldID {
         shouldRevert = _value;
     }
 
-    function verifyProof(
-        uint256,
-        uint256,
-        uint256,
-        uint256,
-        uint256[8] calldata
-    ) external view override {
+    function verifyProof(uint256, uint256, uint256, uint256, uint256[8] calldata) external view override {
         if (shouldRevert) {
             revert("MockWorldID: invalid proof");
         }

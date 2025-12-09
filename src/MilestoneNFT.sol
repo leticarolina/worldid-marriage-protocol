@@ -6,18 +6,22 @@ import {Ownable} from "openzeppelin-contracts/contracts/access/Ownable.sol";
 
 /**
  * @title MilestoneNFT
+ * @author Leticia Azevedo (@letiweb3)
  * @notice Soulbound-style NFT collection that represents relationship anniversaries.
- *         Each year milestone can have its own metadata URI (IPFS link) defined by the owner.
- *         Only the HumanBond contract can mint new NFTs automatically.
+ *         Each year milestone can have its own metadata URI defined by the owner.
+ *         Only the HumanBond contract can mint new NFTs.
  */
 contract MilestoneNFT is ERC721, Ownable {
-    error SoulboundNFT__TransfersDisabled();
+    error MilestoneNFT__TransfersDisabled();
+    error MilestoneNFT__NotAuthorized();
+    error MilestoneNFT__Frozen();
+    error MilestoneNFT__URI_NotFound(uint256 year);
 
     /* -------------------------------------------------------------------------- */
     /*                                 STATE VARS                                 */
     /* -------------------------------------------------------------------------- */
 
-    uint256 public nextTokenId; // Counter for minted NFTs
+    uint256 public totalSupply; // Also Counter for minted NFTs
     address public humanBondContract; // Authorized minter
     mapping(uint256 => string) public milestoneURIs; // year => IPFS URI of the
     mapping(uint256 tokenId => uint256 year) public tokenYear; // tokenId => milestone year
@@ -38,18 +42,12 @@ contract MilestoneNFT is ERC721, Ownable {
     event MilestonesFrozen();
 
     /* -------------------------------------------------------------------------- */
-    /*                                   ERRORS                                   */
-    /* -------------------------------------------------------------------------- */
-
-    error MilestoneNFT__NotAuthorized();
-    error MilestoneNFT__Frozen();
-    error MilestoneNFT__URI_NotFound(uint256 year);
-
-    /* -------------------------------------------------------------------------- */
     /*                                 CONSTRUCTOR                                */
     /* -------------------------------------------------------------------------- */
 
-    constructor() ERC721("Milestone NFT", "MILE") Ownable(msg.sender) {}
+    constructor() ERC721("Milestone NFT", "MILE") Ownable(msg.sender) {
+        totalSupply = 0;
+    }
 
     /* -------------------------------------------------------------------------- */
     /*                                MODIFIERS                                   */
@@ -90,6 +88,7 @@ contract MilestoneNFT is ERC721, Ownable {
         uint256 year,
         string calldata uri
     ) external onlyOwner notFrozen {
+        if (year == 0) revert MilestoneNFT__URI_NotFound(year);
         milestoneURIs[year] = uri;
         if (year > latestYear) latestYear = year;
         emit MilestoneURISet(year, uri);
@@ -114,7 +113,8 @@ contract MilestoneNFT is ERC721, Ownable {
         string memory uri = milestoneURIs[year];
         if (bytes(uri).length == 0) revert MilestoneNFT__URI_NotFound(year);
 
-        uint256 tokenId = nextTokenId++;
+        totalSupply++;
+        uint256 tokenId = totalSupply;
         tokenYear[tokenId] = year;
         _safeMint(to, tokenId);
 
@@ -127,6 +127,9 @@ contract MilestoneNFT is ERC721, Ownable {
     /* -------------------------------------------------------------------------- */
 
     /// @notice Returns the token URI based on the milestone year of the token.
+    /// @dev Reverts if the URI for the token's year is not set.
+    /// @param tokenId The ID of the token.
+    /// @return The metadata URI associated with the token's milestone year.
     function tokenURI(
         uint256 tokenId
     ) public view override returns (string memory) {
@@ -142,6 +145,7 @@ contract MilestoneNFT is ERC721, Ownable {
     /*                             SOULBOUND OVERRIDES                             */
     /* -------------------------------------------------------------------------- */
 
+    /// @dev Override to disable transfers, making the NFT soulbound.
     function _update(
         address to,
         uint256 tokenId,
@@ -152,7 +156,7 @@ contract MilestoneNFT is ERC721, Ownable {
 
         // If NOT minting and NOT burning, forbid transfers
         if (from != address(0) && to != from) {
-            revert SoulboundNFT__TransfersDisabled();
+            revert MilestoneNFT__TransfersDisabled();
         }
 
         return super._update(to, tokenId, auth);
