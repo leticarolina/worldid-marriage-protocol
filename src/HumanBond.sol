@@ -12,7 +12,7 @@ import {IWorldID} from "../lib/world-id-contracts/src/interfaces/IWorldID.sol";
  * @title HumanBond
  * @author Leticia Azevedo (@letiweb3)
  * @notice Main contract managing verified marriages
- @dev Uses World ID verification to confirm both users are real humans,
+ *  @dev Uses World ID verification to confirm both users are real humans,
  *      then mints dynamic metadata NFTs and TIME ERC-20 tokens for a verified bond.
  */
 contract HumanBond is Ownable {

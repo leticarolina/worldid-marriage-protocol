@@ -102,10 +102,7 @@ contract AutomationFlowTest is Test {
         humanBond.propose(address(0), ROOT, NULLIFIER_PROPOSE, PROOF);
     }
 
-    function test_propose_reverts_ifAlreadyHasProposalOpen()
-        public
-        proposalSent
-    {
+    function test_propose_reverts_ifAlreadyHasProposalOpen() public proposalSent {
         vm.prank(leticia);
         vm.expectRevert(HumanBond.HumanBond__ProposalAlreadyExists.selector);
         humanBond.propose(address(0x01), NULLIFIER_PROPOSE + 1, 111, PROOF);
@@ -124,10 +121,7 @@ contract AutomationFlowTest is Test {
     function test_propose_reverts_ifUsingSameNullifier() public proposalSent {
         vm.prank(leticia);
         humanBond.cancelProposal();
-        bool usedNullfier = humanBond.usedNullifier(
-            humanBond.externalNullifierPropose(),
-            NULLIFIER_PROPOSE
-        );
+        bool usedNullfier = humanBond.usedNullifier(humanBond.externalNullifierPropose(), NULLIFIER_PROPOSE);
         assertEq(usedNullfier, true);
 
         vm.expectRevert(HumanBond.HumanBond__InvalidNullifier.selector);
@@ -136,9 +130,7 @@ contract AutomationFlowTest is Test {
 
     function test_propose_sucessfully_storeProposal() public proposalSent {
         uint256 timeStamp = block.timestamp;
-        HumanBond.Proposal memory letisProposal = humanBond.getProposal(
-            leticia
-        );
+        HumanBond.Proposal memory letisProposal = humanBond.getProposal(leticia);
         assertEq(letisProposal.proposer, leticia);
         assertEq(letisProposal.proposed, bob);
         assertEq(letisProposal.proposerNullifier, NULLIFIER_PROPOSE);
@@ -158,10 +150,7 @@ contract AutomationFlowTest is Test {
     //============================ ACCEPTANCE TESTS =======================================//
     //=====================================================================================//
 
-    function test_accept_reverts_ifNotCorrectPartnerAccept()
-        public
-        proposalSent
-    {
+    function test_accept_reverts_ifNotCorrectPartnerAccept() public proposalSent {
         vm.expectRevert(HumanBond.HumanBond__NotProposedToYou.selector);
         humanBond.accept(leticia, ROOT, NULLIFIER_ACCEPT, PROOF);
     }
@@ -177,10 +166,7 @@ contract AutomationFlowTest is Test {
     //     humanBond.accept(leticia, ROOT, NULLIFIER_ACCEPT, PROOF);
     // }
 
-    function test_accept_getMarriageId_recordsMarriageIdSymmetryAndPushToArray()
-        public
-        marriedCouple
-    {
+    function test_accept_getMarriageId_recordsMarriageIdSymmetryAndPushToArray() public marriedCouple {
         MarriageIdHelper helper = new MarriageIdHelper();
 
         bytes32 id1 = helper.exposed_getMarriageId(leticia, bob);
@@ -214,9 +200,7 @@ contract AutomationFlowTest is Test {
         vm.prank(bob);
         humanBond.accept(leticia, ROOT, NULLIFIER_ACCEPT, PROOF);
 
-        HumanBond.Proposal[] memory incoming = humanBond.getIncomingProposals(
-            bob
-        );
+        HumanBond.Proposal[] memory incoming = humanBond.getIncomingProposals(bob);
         assertEq(incoming.length, 0);
 
         HumanBond.Proposal memory p = humanBond.getProposal(leticia);
@@ -233,10 +217,7 @@ contract AutomationFlowTest is Test {
     //======================================= YIELD TESTS ===============================//
     //===================================================================================//
 
-    function test_pendingYield_returnsZeroWhenMarriageInactive()
-        public
-        marriedCouple
-    {
+    function test_pendingYield_returnsZeroWhenMarriageInactive() public marriedCouple {
         // Kill marriage
         vm.prank(leticia);
         humanBond.divorce(bob);
@@ -264,10 +245,7 @@ contract AutomationFlowTest is Test {
         humanBond.claimYield(bob);
     }
 
-    function test_claimYield_splitsTokensEvenlyAndResetsCounter()
-        public
-        marriedCouple
-    {
+    function test_claimYield_splitsTokensEvenlyAndResetsCounter() public marriedCouple {
         skip(block.timestamp + 10 minutes);
 
         vm.prank(leticia);
@@ -291,20 +269,14 @@ contract AutomationFlowTest is Test {
         humanBond.manualCheckAndMint(bob);
     }
 
-    function test_manualCheckAndMint_reverts_ifYearNotReached()
-        public
-        marriedCouple
-    {
+    function test_manualCheckAndMint_reverts_ifYearNotReached() public marriedCouple {
         // marriage just started
         vm.prank(leticia);
         vm.expectRevert(HumanBond.HumanBond__NothingToClaim.selector);
         humanBond.manualCheckAndMint(bob);
     }
 
-    function test_manualCheckAndMint_reverts_ifYearExceedsMax()
-        public
-        marriedCouple
-    {
+    function test_manualCheckAndMint_reverts_ifYearExceedsMax() public marriedCouple {
         uint256 max = milestoneNFT.latestYear();
 
         // warp to year = 5
@@ -315,10 +287,7 @@ contract AutomationFlowTest is Test {
         humanBond.manualCheckAndMint(bob);
     }
 
-    function test_manualCheckAndMint_mintsWhenYearReached()
-        public
-        marriedCouple
-    {
+    function test_manualCheckAndMint_mintsWhenYearReached() public marriedCouple {
         // warp just over 1 year (YEAR = 3 minutes)
         skip(3 minutes + 1);
 
@@ -333,10 +302,7 @@ contract AutomationFlowTest is Test {
         assertEq(currentYear, 1);
     }
 
-    function test_manualCheckAndMint_reverts_ifAlreadyMintedForYear()
-        public
-        marriedCouple
-    {
+    function test_manualCheckAndMint_reverts_ifAlreadyMintedForYear() public marriedCouple {
         // reach year = 1
         skip(3 minutes + 1);
 
@@ -401,10 +367,7 @@ contract AutomationFlowTest is Test {
         milestoneNFT.ownerOf(9);
     }
 
-    function test_manualCheckAndMint_updatesStateCorrectly()
-        public
-        marriedCouple
-    {
+    function test_manualCheckAndMint_updatesStateCorrectly() public marriedCouple {
         // warp 2 years
         skip(2 * 3 minutes + 1);
 
@@ -438,10 +401,7 @@ contract AutomationFlowTest is Test {
         milestoneNFT.ownerOf(9);
     }
 
-    function test_manualCheckAndMint_emitsEventsForAllYears()
-        public
-        marriedCouple
-    {
+    function test_manualCheckAndMint_emitsEventsForAllYears() public marriedCouple {
         skip(2 * 3 minutes + 1);
 
         vm.startPrank(leticia);
@@ -453,12 +413,7 @@ contract AutomationFlowTest is Test {
         // should emit 2 AnniversaryAchieved events (one per year)
         uint256 count;
         for (uint256 i; i < entries.length; i++) {
-            if (
-                entries[i].topics[0] ==
-                keccak256(
-                    "AnniversaryAchieved(address,address,uint256,uint256)"
-                )
-            ) {
+            if (entries[i].topics[0] == keccak256("AnniversaryAchieved(address,address,uint256,uint256)")) {
                 count++;
             }
         }
@@ -483,10 +438,7 @@ contract AutomationFlowTest is Test {
         humanBond.divorce(leticia);
     }
 
-    function test_divorce_claimsPendingYieldAndSplitsEvenly()
-        public
-        marriedCouple
-    {
+    function test_divorce_claimsPendingYieldAndSplitsEvenly() public marriedCouple {
         // simulate 20 minutes (20 TIME)
         skip(20 minutes);
 
@@ -536,9 +488,7 @@ contract AutomationFlowTest is Test {
         humanBond.propose(bob, ROOT, NULLIFIER_PROPOSE, PROOF);
 
         // Check via the getter
-        HumanBond.Proposal[] memory incoming = humanBond.getIncomingProposals(
-            bob
-        );
+        HumanBond.Proposal[] memory incoming = humanBond.getIncomingProposals(bob);
 
         assertEq(incoming.length, 1);
         assertEq(incoming[0].proposer, leticia);
@@ -557,9 +507,7 @@ contract AutomationFlowTest is Test {
         vm.prank(alice);
         humanBond.propose(bob, ROOT, 9002, PROOF);
 
-        HumanBond.Proposal[] memory incoming = humanBond.getIncomingProposals(
-            bob
-        );
+        HumanBond.Proposal[] memory incoming = humanBond.getIncomingProposals(bob);
 
         assertEq(incoming.length, 2);
 
@@ -572,9 +520,7 @@ contract AutomationFlowTest is Test {
         vm.prank(leticia);
         humanBond.propose(bob, ROOT, NULLIFIER_PROPOSE, PROOF);
 
-        HumanBond.Proposal[] memory incoming = humanBond.getIncomingProposals(
-            bob
-        );
+        HumanBond.Proposal[] memory incoming = humanBond.getIncomingProposals(bob);
 
         assertEq(incoming.length, 1);
         assertEq(incoming[0].proposer, leticia);
@@ -590,9 +536,7 @@ contract AutomationFlowTest is Test {
         vm.prank(leticia);
         humanBond.cancelProposal();
 
-        HumanBond.Proposal[] memory incoming = humanBond.getIncomingProposals(
-            bob
-        );
+        HumanBond.Proposal[] memory incoming = humanBond.getIncomingProposals(bob);
         assertEq(incoming.length, 0);
 
         // proposal struct cleared
@@ -617,9 +561,7 @@ contract AutomationFlowTest is Test {
         vm.prank(alice);
         humanBond.cancelProposal();
 
-        HumanBond.Proposal[] memory incoming = humanBond.getIncomingProposals(
-            bob
-        );
+        HumanBond.Proposal[] memory incoming = humanBond.getIncomingProposals(bob);
 
         assertEq(incoming.length, 2);
 
@@ -632,10 +574,7 @@ contract AutomationFlowTest is Test {
     //================================ GETTERS TESTS ==================================//
     //=================================================================================//
     function test_getMarriageView_returnsCorrectData() public marriedCouple {
-        HumanBond.MarriageView memory v = humanBond.getMarriageView(
-            leticia,
-            bob
-        );
+        HumanBond.MarriageView memory v = humanBond.getMarriageView(leticia, bob);
 
         assertEq(v.partnerA, leticia);
         assertEq(v.partnerB, bob);
@@ -645,10 +584,7 @@ contract AutomationFlowTest is Test {
         assertEq(v.marriageId, humanBond.activeMarriageOf(leticia));
     }
 
-    function test_getCurrentMilestoneYear_returnsCorrectYear()
-        public
-        marriedCouple
-    {
+    function test_getCurrentMilestoneYear_returnsCorrectYear() public marriedCouple {
         skip(6 minutes + 1); // warp to year = 2
 
         vm.prank(leticia);

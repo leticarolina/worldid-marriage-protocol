@@ -31,12 +31,7 @@ contract MilestoneNFTTest is Test {
     }
 
     function test_revert_setMilestoneURI_zeroYear() public {
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                MilestoneNFT.MilestoneNFT__URI_NotFound.selector,
-                0
-            )
-        );
+        vm.expectRevert(abi.encodeWithSelector(MilestoneNFT.MilestoneNFT__URI_NotFound.selector, 0));
         milestone.setMilestoneURI(0, "ipfs://BAD");
     }
 
@@ -73,12 +68,7 @@ contract MilestoneNFTTest is Test {
 
     function test_revert_mintMilestone_missingURI() public {
         vm.prank(hb);
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                MilestoneNFT.MilestoneNFT__URI_NotFound.selector,
-                1
-            )
-        );
+        vm.expectRevert(abi.encodeWithSelector(MilestoneNFT.MilestoneNFT__URI_NotFound.selector, 1));
         milestone.mintMilestone(user, 1);
     }
 

@@ -20,14 +20,8 @@ contract DeployScript is Script {
         address WORLD_ID_ROUTER_REAL = 0x17B354dD2595411ff79041f930e491A4Df39A278; // World ID Router mainnet address
 
         //Set milestones metadata URIs BEFORE ownership transfer
-        milestoneNFT.setMilestoneURI(
-            1,
-            "ipfs://QmPAVmWBuJnNgrGrAp34CqTa13VfKkEZkZak8d6E4MJio8"
-        );
-        milestoneNFT.setMilestoneURI(
-            2,
-            "ipfs://QmPTuKXg64EaeyreUFe4PJ1istspMd4G2oe2ArRYrtBGYn"
-        );
+        milestoneNFT.setMilestoneURI(1, "ipfs://QmPAVmWBuJnNgrGrAp34CqTa13VfKkEZkZak8d6E4MJio8");
+        milestoneNFT.setMilestoneURI(2, "ipfs://QmPTuKXg64EaeyreUFe4PJ1istspMd4G2oe2ArRYrtBGYn");
 
         // Compute external nullifiers and app ID
         string memory appId = "app_bfc3261816aeadc589f9c6f80a98f5df";

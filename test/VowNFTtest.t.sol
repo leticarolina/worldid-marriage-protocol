@@ -21,10 +21,7 @@ contract VowNFTTest is Test {
     /* ---------------------------
        Helpers
        --------------------------- */
-    function _startsWith(
-        string memory what,
-        string memory prefix
-    ) internal pure returns (bool) {
+    function _startsWith(string memory what, string memory prefix) internal pure returns (bool) {
         bytes memory w = bytes(what);
         bytes memory p = bytes(prefix);
         if (w.length < p.length) return false;
@@ -39,13 +36,7 @@ contract VowNFTTest is Test {
        --------------------------- */
 
     function test_mint_recordsMetadataAndMapping_slot0() public {
-        uint256 tid1 = vow.mintVowNFT(
-            alice,
-            alice,
-            bob,
-            1_610_000_000,
-            marriageId
-        );
+        uint256 tid1 = vow.mintVowNFT(alice, alice, bob, 1_610_000_000, marriageId);
         assertEq(tid1, 1);
 
         // mapping => slot0 filled, slot1 zero
@@ -53,8 +44,7 @@ contract VowNFTTest is Test {
         assertEq(tokens[0], 1);
         assertEq(tokens[1], 0);
 
-        (address pA, address pB, uint256 bondStart, bytes32 mid) = vow
-            .getTokenMetadata(1);
+        (address pA, address pB, uint256 bondStart, bytes32 mid) = vow.getTokenMetadata(1);
         assertEq(pA, alice);
         assertEq(pB, bob);
         assertEq(bondStart, 1_610_000_000);
@@ -86,25 +76,13 @@ contract VowNFTTest is Test {
         vow.mintVowNFT(alice, alice, bob, 1_610_000_000, marriageId);
         string memory uri = vow.tokenURI(1);
 
-        assertTrue(
-            _startsWith(uri, "data:application/json;base64,"),
-            "must return data URI"
-        );
+        assertTrue(_startsWith(uri, "data:application/json;base64,"), "must return data URI");
         // check the contract stores the expected imageCID (tokenURI is built from this)
-        assertEq(
-            vow.imageCID(),
-            "ipfs://QmS5Aqic36eFsGvmGsPDBD3VhfTyY7W1E7Sk7jTrAuKtqo"
-        );
+        assertEq(vow.imageCID(), "ipfs://QmS5Aqic36eFsGvmGsPDBD3VhfTyY7W1E7Sk7jTrAuKtqo");
     }
 
     function test_console_log_tokenURI_for_manual_inspection() public {
-        uint256 t1 = vow.mintVowNFT(
-            alice,
-            alice,
-            bob,
-            1_610_000_000,
-            marriageId
-        );
+        uint256 t1 = vow.mintVowNFT(alice, alice, bob, 1_610_000_000, marriageId);
         string memory uri = vow.tokenURI(t1);
 
         // prints during `forge test -vv` so you can copy/paste to a browser or base64 decoder
