@@ -17,7 +17,6 @@ contract DeployScript is Script {
         VowNFT vowNFT = new VowNFT();
         MilestoneNFT milestoneNFT = new MilestoneNFT();
         TimeToken timeToken = new TimeToken();
-        address WORLD_ID_ROUTER_SEPOLIA = 0x469449f251692E0779667583026b5A1E99512157;
         address WORLD_ID_ROUTER_REAL = 0x17B354dD2595411ff79041f930e491A4Df39A278; // World ID Router mainnet address
 
         //Set milestones metadata URIs BEFORE ownership transfer
@@ -37,7 +36,7 @@ contract DeployScript is Script {
 
         //Deploy HumanBond main contract
         HumanBond humanBond = new HumanBond(
-            WORLD_ID_ROUTER_SEPOLIA, // replace w/ chosen network WORLD ID ROUTER
+            WORLD_ID_ROUTER_REAL, // replace w/ chosen network WORLD ID ROUTER
             address(vowNFT),
             address(timeToken),
             address(milestoneNFT),

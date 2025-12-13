@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "forge-std/Test.sol";
-import "../src/VowNFT.sol";
+import {Test, console} from "forge-std/Test.sol";
+import {VowNFT} from "../src/VowNFT.sol";
 
 contract VowNFTTest is Test {
     VowNFT public vow;
