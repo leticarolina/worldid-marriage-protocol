@@ -6,7 +6,7 @@ import {VowNFT} from "./VowNFT.sol";
 import {TimeToken} from "./TimeToken.sol";
 import {MilestoneNFT} from "./MilestoneNFT.sol";
 import {ByteHasher} from "./helpers/ByteHasher.sol";
-import {IWorldID} from "../lib/world-id-contracts/src/interfaces/IWorldID.sol";
+import {IWorldID} from "./helpers/IWorldID.sol";
 
 /**
  * @title HumanBond
@@ -93,7 +93,7 @@ contract HumanBond is Ownable {
 
     uint256 public immutable DAY; // 1 day = 1 TIME token reward shared
     uint256 public immutable YEAR; // 1 YEAR = new milestone NFT eligibility
-
+    uint256 public constant GROUP_ID = 1; // World ID Orb-only group. Required by World ID Route
     /* ----------------------------- EVENTS ----------------------------- */
     event ProposalCreated(address indexed proposer, address indexed proposed);
     event ProposalAccepted(address indexed partnerA, address indexed partnerB);
@@ -155,7 +155,7 @@ contract HumanBond is Ownable {
         }
 
         // Verify proposer is a real human via World ID
-        worldId.verifyProof(root, signalHash, proposerNullifier, externalNullifierPropose, proof);
+        worldId.verifyProof(root, GROUP_ID, signalHash, proposerNullifier, externalNullifierPropose, proof);
 
         usedNullifier[externalNullifierPropose][proposerNullifier] = true; // mark nullifier as used
 
@@ -195,6 +195,7 @@ contract HumanBond is Ownable {
         // Verify acceptor is also a real human
         worldId.verifyProof(
             root,
+            GROUP_ID,
             signalHash, // signal = sender address
             acceptorNullifier,
             externalNullifierAccept,

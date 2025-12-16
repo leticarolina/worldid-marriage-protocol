@@ -3,7 +3,7 @@ pragma solidity ^0.8.20;
 
 import {Script, console} from "forge-std/Script.sol";
 import {VowNFT} from "../src/VowNFT.sol";
-import {IWorldID, HumanBond} from "../src/HumanBond.sol";
+import {HumanBond} from "../src/HumanBond.sol";
 import {MilestoneNFT} from "../src/MilestoneNFT.sol";
 import {TimeToken} from "../src/TimeToken.sol";
 
