@@ -118,14 +118,21 @@ contract AutomationFlowTest is Test {
         humanBond.propose(address(0x02), NULLIFIER_PROPOSE + 2, 111, PROOF);
     }
 
-    function test_propose_reverts_ifUsingSameNullifier() public proposalSent {
-        vm.prank(leticia);
-        humanBond.cancelProposal();
-        bool usedNullfier = humanBond.usedNullifier(humanBond.externalNullifierPropose(), NULLIFIER_PROPOSE);
-        assertEq(usedNullfier, true);
+    // function test_propose_reverts_ifUsingSameNullifier() public proposalSent {
+    //     vm.prank(leticia);
+    //     humanBond.cancelProposal();
+    //     bool usedNullfier = humanBond.usedNullifier(humanBond.externalNullifierPropose(), NULLIFIER_PROPOSE);
+    //     assertEq(usedNullfier, true);
 
-        vm.expectRevert(HumanBond.HumanBond__InvalidNullifier.selector);
-        humanBond.propose(address(0x01), ROOT, NULLIFIER_PROPOSE, PROOF);
+    //     vm.expectRevert(HumanBond.HumanBond__InvalidNullifier.selector);
+    //     humanBond.propose(address(0x01), ROOT, NULLIFIER_PROPOSE, PROOF);
+    // }
+
+    function test_propose_works_afterDivorce() public marriedCouple {
+        vm.startPrank(leticia);
+        humanBond.divorce(bob);
+        humanBond.propose(bob, ROOT, NULLIFIER_PROPOSE, PROOF);
+        vm.stopPrank();
     }
 
     function test_propose_sucessfully_storeProposal() public proposalSent {

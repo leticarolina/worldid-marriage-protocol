@@ -32,12 +32,12 @@ The protocol handles everything autonomously: proposals, acceptance, yield, shar
 
 ### World Chain Mainnet
 
-- **Human Bond (Core Engine)**: [0x6494daa4e693F748Eb0a16041ECfCEd51392bB13](https://worldscan.org/address/0x6494daa4e693F748Eb0a16041ECfCEd51392bB13)
-- **Vow Dynamic Onchain NFT**: [0xa1650cc531c2780fb8c006f4b8d314018f7f9ac9](https://worldscan.org/address/0xa1650cc531c2780fb8c006f4b8d314018f7f9ac9)
+- **Human Bond (Core Engine)**: [0x439f09efB4993A4Ee039ccf65e69CF3CC705D735](https://worldscan.org/address/0x439f09efB4993A4Ee039ccf65e69CF3CC705D735)
+- **Vow Dynamic Onchain NFT**: [0xED8f02196B1884657A8c3d17a516c2eEfcc3E2e1](https://worldscan.org/address/0xED8f02196B1884657A8c3d17a516c2eEfcc3E2e1)
 - **Milestone Upgradeable NFT**: 
-[0x0a2759241d0cb610e3e61db351813ddf8a52f14c](https://worldscan.org/address/0x0a2759241d0cb610e3e61db351813ddf8a52f14c)
+[0xb12F9Ef0aF10a035B18BC00A26219c335111d587](https://worldscan.org/address/0xb12F9Ef0aF10a035B18BC00A26219c335111d587)
 - **TIME Token**:
-[0x261f6d89491cbadff7813303363a514f4b226a82](https://worldscan.org/address/0x261f6d89491cbadff7813303363a514f4b226a82)
+[0x1493BF2c2762b5C991835c63683bBBcD14C3cC43](https://worldscan.org/address/0x1493BF2c2762b5C991835c63683bBBcD14C3cC43)
 
 ### Contract Responsibilities
 
@@ -125,6 +125,8 @@ V2 is a ground-up improvement aimed at reliability, gas-efficiency, and frontend
 
 - Separate external nullifiers for proposing & accepting
 - Anti-replay nullifier tracking per action
+- HumanBond integrates with the World ID Router contract.
+- As only Orb credentials are supported on-chain, all proof verifications use groupId = 1
 
 ## Written and refactored by
 

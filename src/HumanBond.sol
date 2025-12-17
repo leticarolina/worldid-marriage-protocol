@@ -80,7 +80,7 @@ contract HumanBond is Ownable {
     mapping(address => uint256) public proposerIndex; // proposer address => index in proposalsFor[proposed]
     mapping(bytes32 => Marriage) public marriages;
     mapping(address => bytes32) public activeMarriageOf; // quick lookup of active marriage ID by user address
-    mapping(uint256 => mapping(uint256 => bool)) public usedNullifier; //key usedNullifier by externalNullifier.
+    // mapping(uint256 => mapping(uint256 => bool)) public usedNullifier; //key usedNullifier by externalNullifier.
 
     bytes32[] public marriageIds; //So every couple has a unique “marriage fingerprint”
 
@@ -150,14 +150,9 @@ contract HumanBond is Ownable {
         if (activeMarriageOf[msg.sender] != bytes32(0) || activeMarriageOf[proposed] != bytes32(0)) {
             revert HumanBond__UserAlreadyMarried();
         }
-        if (usedNullifier[externalNullifierPropose][proposerNullifier]) {
-            revert HumanBond__InvalidNullifier();
-        }
 
         // Verify proposer is a real human via World ID
         worldId.verifyProof(root, GROUP_ID, signalHash, proposerNullifier, externalNullifierPropose, proof);
-
-        usedNullifier[externalNullifierPropose][proposerNullifier] = true; // mark nullifier as used
 
         //Store proposal
         proposals[msg.sender] = Proposal({
@@ -185,9 +180,6 @@ contract HumanBond is Ownable {
         if (proposalOfProposer.proposed != msg.sender) {
             revert HumanBond__NotProposedToYou();
         }
-        if (usedNullifier[externalNullifierAccept][acceptorNullifier]) {
-            revert HumanBond__InvalidNullifier();
-        } //not reaching, UserAlreadyMarried in propose fires first
         if (activeMarriageOf[proposer] != bytes32(0) || activeMarriageOf[msg.sender] != bytes32(0)) {
             revert HumanBond__UserAlreadyMarried();
         } //not reaching, propose function reverts before
@@ -209,7 +201,6 @@ contract HumanBond is Ownable {
         }
 
         proposalOfProposer.accepted = true;
-        usedNullifier[externalNullifierAccept][acceptorNullifier] = true;
 
         // Record bond data
         marriages[marriageId] = Marriage({
